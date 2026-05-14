@@ -6,10 +6,10 @@
           <el-input v-model="queryState.modelCode" placeholder="请输入模型编码" clearable />
         </el-form-item>
         <el-form-item label="用户">
-          <el-input v-model="queryState.username" placeholder="X-Bids-User" />
+          <el-input v-model="queryState.username" placeholder="Basic 用户名" />
         </el-form-item>
-        <el-form-item label="角色">
-          <el-input v-model="queryState.roles" placeholder="X-Bids-Roles" />
+        <el-form-item label="密码">
+          <el-input v-model="queryState.password" type="password" placeholder="Basic 密码" show-password />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loadingForm" @click="handleLoadForm">加载表单</el-button>
@@ -92,8 +92,8 @@ import { executeModel, loadForm } from './api'
 
 const queryState = reactive({
   modelCode: '',
-  username: 'demo-admin',
-  roles: 'ADMIN'
+  username: 'admin',
+  password: 'admin'
 })
 const formConfig = ref(null)
 const formValues = reactive({})
@@ -108,7 +108,7 @@ async function handleLoadForm() {
   }
   loadingForm.value = true
   try {
-    const data = await loadForm(queryState.modelCode, queryState.username, queryState.roles)
+    const data = await loadForm(queryState.modelCode, queryState.username, queryState.password)
     formConfig.value = data
     result.value = null
     Object.keys(formValues).forEach((key) => delete formValues[key])
@@ -125,7 +125,7 @@ async function handleLoadForm() {
 async function handleExecute() {
   executing.value = true
   try {
-    result.value = await executeModel(queryState.modelCode, formValues, queryState.username, queryState.roles)
+    result.value = await executeModel(queryState.modelCode, formValues, queryState.username, queryState.password)
   } catch (error) {
     ElMessage.error(error.message)
   } finally {

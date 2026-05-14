@@ -1,13 +1,13 @@
 package com.huawei.bids.service;
 
 import com.huawei.bids.common.ApiException;
-import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
+import java.io.StringReader;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,16 +24,19 @@ public class SqlTemplateService {
 
     public String render(String sqlTemplate, Map<String, Object> parameters) {
         try {
-            StringTemplateLoader loader = new StringTemplateLoader();
-            String name = UUID.randomUUID().toString();
-            loader.putTemplate(name, sqlTemplate);
-            configuration.setTemplateLoader(loader);
-            Template template = configuration.getTemplate(name);
+            rejectDirectInterpolation(sqlTemplate);
+            Template template = new Template("sql-" + UUID.randomUUID(), new StringReader(sqlTemplate), configuration);
             StringWriter writer = new StringWriter();
             template.process(parameters == null ? Map.of() : parameters, writer);
             return writer.toString();
         } catch (Exception exception) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "SQL 模板渲染失败：" + exception.getMessage());
+        }
+    }
+
+    private void rejectDirectInterpolation(String sqlTemplate) {
+        if (sqlTemplate.contains("${") || sqlTemplate.contains("#{")) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "SQL 模板禁止直接插值用户参数，请使用命名参数绑定");
         }
     }
 }

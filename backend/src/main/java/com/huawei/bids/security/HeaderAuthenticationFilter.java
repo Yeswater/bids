@@ -19,21 +19,28 @@ import java.util.List;
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
     private final String userHeader;
     private final String rolesHeader;
+    private final boolean enabled;
 
     public HeaderAuthenticationFilter(
             @Value("${bids.security.user-header:X-Bids-User}") String userHeader,
-            @Value("${bids.security.roles-header:X-Bids-Roles}") String rolesHeader
+            @Value("${bids.security.roles-header:X-Bids-Roles}") String rolesHeader,
+            @Value("${bids.security.trusted-header.enabled:false}") boolean enabled
     ) {
         this.userHeader = userHeader;
         this.rolesHeader = rolesHeader;
+        this.enabled = enabled;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        if (!enabled) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String username = request.getHeader(userHeader);
         if (username != null && !username.isBlank()) {
-            List<SimpleGrantedAuthority> authorities = Arrays.stream(defaultIfBlank(request.getHeader(rolesHeader), "ADMIN").split(","))
+            List<SimpleGrantedAuthority> authorities = Arrays.stream(defaultIfBlank(request.getHeader(rolesHeader), "USER").split(","))
                     .map(String::trim)
                     .filter(role -> !role.isEmpty())
                     .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)

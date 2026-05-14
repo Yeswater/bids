@@ -1,18 +1,18 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
 
-export async function loadForm(modelCode, username, roles) {
+export async function loadForm(modelCode, username, password) {
   return request(`/api/runtime/models/${encodeURIComponent(modelCode)}/form`, {
     method: 'GET',
     username,
-    roles
+    password
   })
 }
 
-export async function executeModel(modelCode, parameters, username, roles) {
+export async function executeModel(modelCode, parameters, username, password) {
   return request(`/api/runtime/models/${encodeURIComponent(modelCode)}/execute`, {
     method: 'POST',
     username,
-    roles,
+    password,
     body: JSON.stringify({ parameters })
   })
 }
@@ -22,8 +22,7 @@ async function request(path, options) {
     method: options.method,
     headers: {
       'Content-Type': 'application/json',
-      'X-Bids-User': options.username || 'demo-admin',
-      'X-Bids-Roles': options.roles || 'ADMIN'
+      'Authorization': basicAuth(options.username || 'admin', options.password || 'admin')
     },
     body: options.body
   })
@@ -32,4 +31,8 @@ async function request(path, options) {
     throw new Error(data.message || '请求失败')
   }
   return data
+}
+
+function basicAuth(username, password) {
+  return `Basic ${btoa(`${username}:${password}`)}`
 }

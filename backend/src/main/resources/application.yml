@@ -21,6 +21,11 @@ bids:
   security:
     user-header: X-Bids-User
     roles-header: X-Bids-Roles
+    trusted-header:
+      enabled: false
+    admin:
+      username: ${BIDS_ADMIN_USERNAME:admin}
+      password: ${BIDS_ADMIN_PASSWORD:admin}
   audit:
     elasticsearch:
       enabled: false

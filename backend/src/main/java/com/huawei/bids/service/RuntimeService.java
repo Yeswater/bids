@@ -261,7 +261,11 @@ public class RuntimeService {
                 null
         );
         configRepository.saveExecuteLog(log);
-        auditSearchPublisher.publish(log);
+        try {
+            auditSearchPublisher.publish(log);
+        } catch (Exception ignored) {
+            // Elasticsearch 审计是旁路能力，不能影响主查询链路。
+        }
     }
 
     private String toJson(Map<String, Object> parameters) {
