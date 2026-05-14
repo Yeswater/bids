@@ -6,7 +6,7 @@
 
 ## 技术栈
 
-- 后端：Spring Boot
+- 后端：Spring Boot，服务拆分为 `bids-config` 与 `bids-exec`
 - SQL 模板：FreeMarker
 - SQL 解析：JSqlParser
 - 权限：Spring Security
@@ -20,9 +20,8 @@
 
 ```mermaid
 flowchart LR
-  FE[Vue3 前台] --> API[Spring Boot API]
-  API --> CFG[配置态服务]
-  API --> RT[运行态服务]
+  FE[bids-web] --> CFG[bids-config]
+  FE --> RT[bids-exec]
   CFG --> CDB[(配置库)]
   RT --> CDB
   RT --> TPL[FreeMarker 模板]
@@ -33,7 +32,19 @@ flowchart LR
   RT -.可选.-> ES[(Elasticsearch)]
 ```
 
+
+
 ## 配置态能力
+
+`bids-config` 按 DDD 分层组织，包路径为 `com.yeswater.bids.config`：
+
+```text
+interfaces/rest        配置态 HTTP 接口
+interfaces/dto         配置态入参和出参
+application            配置态应用服务
+domain/model           配置态领域模型
+infrastructure         持久化、安全和异常处理
+```
 
 配置态负责维护：
 
@@ -57,6 +68,16 @@ GET  /api/config/models/{id}
 ```
 
 ## 运行态能力
+
+`bids-exec` 按 DDD 分层组织，包路径为 `com.yeswater.bids.exec`：
+
+```text
+interfaces/rest        运行态 HTTP 接口
+interfaces/dto         运行态入参和出参
+application            运行态应用服务
+domain/model           运行态领域模型
+infrastructure         持久化、数据源、安全、审计和异常处理
+```
 
 运行态负责：
 
@@ -120,6 +141,8 @@ flowchart TD
   G -- 是 --> H[参数绑定执行]
 ```
 
+
+
 ## 数据模型
 
 ```text
@@ -142,6 +165,8 @@ flowchart TD
   D --> F[展示最终 SQL]
 ```
 
+
+
 ## 最小可用范围
 
 - 配置数据源
@@ -151,3 +176,4 @@ flowchart TD
 - 运行模型并展示表格
 - 展示最终 SQL
 - 记录执行日志
+

@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8082'
 
 export async function loadForm(modelCode, username, password) {
   return request(`/api/runtime/models/${encodeURIComponent(modelCode)}/form`, {

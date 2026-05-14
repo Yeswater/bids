@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: bids-config
+  datasource:
+    url: ${BIDS_CONFIG_DB_URL:jdbc:mysql://localhost:3306/bids?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${BIDS_CONFIG_DB_USERNAME:bids}
+    password: ${BIDS_CONFIG_DB_PASSWORD:bids}
+    driver-class-name: ${BIDS_CONFIG_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  sql:
+    init:
+      mode: ${BIDS_SQL_INIT_MODE:never}
+
+bids:
+  security:
+    user-header: X-Bids-User
+    roles-header: X-Bids-Roles
+    trusted-header:
+      enabled: false
+    admin:
+      username: ${BIDS_ADMIN_USERNAME:admin}
+      password: ${BIDS_ADMIN_PASSWORD:admin}
