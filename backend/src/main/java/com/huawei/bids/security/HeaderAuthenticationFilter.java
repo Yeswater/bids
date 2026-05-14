@@ -44,6 +44,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
                     .map(String::trim)
                     .filter(role -> !role.isEmpty())
                     .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                    .filter(role -> !"ROLE_ADMIN".equals(role))
                     .map(SimpleGrantedAuthority::new)
                     .toList();
             SecurityContextHolder.getContext().setAuthentication(
