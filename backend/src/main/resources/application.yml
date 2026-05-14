@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bids-backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/bids?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: bids
+    password: bids
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  sql:
+    init:
+      mode: always
+
+bids:
+  security:
+    user-header: X-Bids-User
+    roles-header: X-Bids-Roles
+  audit:
+    elasticsearch:
+      enabled: false
