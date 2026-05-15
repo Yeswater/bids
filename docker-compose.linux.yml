@@ -1,0 +1,14 @@
+# Linux（含 Docker Engine）：合并使用
+# docker compose -f docker-compose.yml -f docker-compose.linux.yml up --build
+#
+# 为容器内访问宿主机服务提供 host.docker.internal（Docker 20.10+ 需 host-gateway）
+services:
+  bids-config:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  bids-exec:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  bids-web:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

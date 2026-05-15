@@ -1,0 +1,84 @@
+services:
+  mysql:
+    build:
+      context: ./docker/mysql
+    image: bids-mysql:8
+    container_name: bids-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: bids
+      MYSQL_USER: bids
+      MYSQL_PASSWORD: bids
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - bids_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  bids-config:
+    build:
+      context: .
+      dockerfile: docker/bids-config/Dockerfile
+    image: bids-config:latest
+    container_name: bids-config
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      BIDS_CONFIG_DB_URL: jdbc:mysql://mysql:3306/bids?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      BIDS_CONFIG_DB_USERNAME: bids
+      BIDS_CONFIG_DB_PASSWORD: bids
+      BIDS_ADMIN_USERNAME: ${BIDS_ADMIN_USERNAME:-admin}
+      BIDS_ADMIN_PASSWORD: ${BIDS_ADMIN_PASSWORD:-admin}
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+  bids-exec:
+    build:
+      context: .
+      dockerfile: docker/bids-exec/Dockerfile
+    image: bids-exec:latest
+    container_name: bids-exec
+    depends_on:
+      mysql:
+        condition: service_healthy
+      bids-config:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      BIDS_CONFIG_DB_URL: jdbc:mysql://mysql:3306/bids?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      BIDS_CONFIG_DB_USERNAME: bids
+      BIDS_CONFIG_DB_PASSWORD: bids
+      BIDS_ADMIN_USERNAME: ${BIDS_ADMIN_USERNAME:-admin}
+      BIDS_ADMIN_PASSWORD: ${BIDS_ADMIN_PASSWORD:-admin}
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+
+  bids-web:
+    build:
+      context: .
+      dockerfile: docker/bids-web/Dockerfile
+      args:
+        VITE_API_BASE: ""
+    image: bids-web:latest
+    container_name: bids-web
+    depends_on:
+      - bids-config
+      - bids-exec
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  bids_mysql_data:
