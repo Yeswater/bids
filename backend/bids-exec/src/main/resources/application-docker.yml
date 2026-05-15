@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${BIDS_CONFIG_DB_URL:jdbc:mysql://mysql:3306/bids?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${BIDS_CONFIG_DB_USERNAME:bids}
+    password: ${BIDS_CONFIG_DB_PASSWORD:bids}
+    driver-class-name: ${BIDS_CONFIG_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+  sql:
+    init:
+      mode: never

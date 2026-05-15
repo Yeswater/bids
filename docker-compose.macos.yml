@@ -1,0 +1,11 @@
+# macOS（Docker Desktop）：合并使用
+# docker compose -f docker-compose.yml -f docker-compose.macos.yml up --build
+#
+# Desktop 已提供 host.docker.internal；以下为 JVM 在桌面环境常见内存限制（可按机器调整）
+services:
+  bids-config:
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60.0"
+  bids-exec:
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60.0"

@@ -1,0 +1,7 @@
+# Windows（Docker Desktop / WSL2 后端）：合并使用
+# docker compose -f docker-compose.yml -f docker-compose.windows.yml up --build
+#
+# 主文件已使用命名卷避免 NTFS 绑定挂载问题；延长 MySQL 优雅停止时间
+services:
+  mysql:
+    stop_grace_period: 60s
